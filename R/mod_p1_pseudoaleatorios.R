@@ -1,6 +1,6 @@
 # ==============================================================
 # Pestaña 1: Generación de Números Pseudoaleatorios
-# Responsable: Cris
+# Responsable: Sandy González
 # ==============================================================
 
 mod_p1_pseudoaleatorios_ui <- function(id) {
@@ -13,6 +13,6 @@ mod_p1_pseudoaleatorios_ui <- function(id) {
 
 mod_p1_pseudoaleatorios_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Lógica del módulo aquí
+    # Desarrollo aquí
   })
 }
