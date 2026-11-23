@@ -1,6 +1,6 @@
 # ==============================================================
 # Pestaña 5: Pruebas de Bondad de Ajuste
-# Responsable: Compañera
+# Responsable: Erika Haro
 # ==============================================================
 
 mod_p5_bondad_ajuste_ui <- function(id) {
@@ -13,6 +13,6 @@ mod_p5_bondad_ajuste_ui <- function(id) {
 
 mod_p5_bondad_ajuste_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Lógica del módulo aquí
+    # Desarrollo
   })
 }
