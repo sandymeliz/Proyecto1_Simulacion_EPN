@@ -1,6 +1,6 @@
 # ==============================================================
 # Pestaña 4: Variables Aleatorias Continuas
-# Responsable: Cris
+# Responsable: Sandy González
 # ==============================================================
 
 mod_p4_continuas_ui <- function(id) {
@@ -13,6 +13,6 @@ mod_p4_continuas_ui <- function(id) {
 
 mod_p4_continuas_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Lógica del módulo aquí
+    # Desarrollo
   })
 }
