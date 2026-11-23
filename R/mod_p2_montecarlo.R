@@ -1,6 +1,6 @@
 # ==============================================================
 # Pestaña 2: Integración por el Método de Montecarlo
-# Responsable: Compañera
+# Responsable: Erika Haro
 # ==============================================================
 
 mod_p2_montecarlo_ui <- function(id) {
