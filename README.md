@@ -5,8 +5,8 @@ Repositorio creado para el desarrollo del proyecto del primer bimestre de la mat
 Aplicativo interactivo en R Shiny – Trabajo Grupal N.º 1 (EPN).
 
 ## Integrantes
-- Cris
-- (Compañera)
+- Sandy González
+- Erika Haro
 
 ## Estructura
 | Archivo | Contenido |
