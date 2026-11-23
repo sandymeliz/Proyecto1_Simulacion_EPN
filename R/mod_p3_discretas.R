@@ -1,6 +1,6 @@
 # ==============================================================
 # Pestaña 3: Variables Aleatorias Discretas
-# Responsable: Compañera
+# Responsable: Erika Haro
 # ==============================================================
 
 mod_p3_discretas_ui <- function(id) {
@@ -13,6 +13,6 @@ mod_p3_discretas_ui <- function(id) {
 
 mod_p3_discretas_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Lógica del módulo aquí
+    # Desarrollo
   })
 }
