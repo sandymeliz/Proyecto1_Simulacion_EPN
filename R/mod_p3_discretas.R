@@ -51,7 +51,9 @@ mod_p3_discretas_ui <- function(id) {
 
 mod_p3_discretas_server <- function(id) {
   moduleServer(id, function(input, output, session) {
+    #---------------------------------------------------------------------------------------------------------
     # Validación de la distribución personalizada
+    #---------------------------------------------------------------------------------------------------------
     observe({
       if (input$dist == "Personalizada") {
         vals <- as.numeric(strsplit(input$vals, ",")[[1]])
@@ -65,8 +67,10 @@ mod_p3_discretas_server <- function(id) {
         }
       }
     })
-
+    
+    #---------------------------------------------------------------------------------------------------------
     # Simulación
+    #---------------------------------------------------------------------------------------------------------
     sim <- eventReactive(input$run, {
       N <- input$N
       req(N > 0)
@@ -99,8 +103,10 @@ mod_p3_discretas_server <- function(id) {
       emp$p_teorica <- teorica$p
       list(res = res, tabla = emp)
     })
-
+        
+    #---------------------------------------------------------------------------------------------------------
     # Gráfico de barras comparativo
+    #---------------------------------------------------------------------------------------------------------
     output$grafico <- renderPlot({
       s <- sim()
       t <- s$tabla
@@ -112,8 +118,10 @@ mod_p3_discretas_server <- function(id) {
       legend("topright", legend = c("Empírico", "Teórico"),
              fill = c("lightblue", "red"), border = "black")
     })
-
+        
+    #---------------------------------------------------------------------------------------------------------
     # Resumen descriptivo
+    #---------------------------------------------------------------------------------------------------------
     output$resumen <- renderTable({
       s <- sim()
       res <- s$res
@@ -125,8 +133,10 @@ mod_p3_discretas_server <- function(id) {
                   sum((s$tabla$x - sum(s$tabla$x * s$tabla$p_teorica))^2 * s$tabla$p_teorica))
       )
     })
-
+        
+    #---------------------------------------------------------------------------------------------------------
     # Descargas
+    #---------------------------------------------------------------------------------------------------------
     output$dl_xlsx <- downloadHandler(
       filename = function() paste0("discretas_", input$dist, ".xlsx"),
       content = function(file) {
