@@ -110,6 +110,14 @@ CSS_P1 <- paste0("
             color: white; box-shadow: 0 6px 14px rgba(53,56,125,.2); }
 .p1-boton:hover, .p1-boton:focus { color: white; filter: brightness(1.07); }
 
+.p1-desc { display: block; width: 100%; border: none; border-radius: 12px; color: white !important;
+           padding: 9px; margin-bottom: 8px; text-align: left; font-size: 14.5px; }
+.p1-desc:hover, .p1-desc:focus { filter: brightness(1.08); color: white; }
+.p1-desc .fa, .p1-desc svg { margin-right: 6px; }
+
+.p1-proceso { background: #f7f8fc; border: 1px solid #eceef5; border-radius: 16px; padding: 10px 20px 16px 20px;
+              margin: 6px 0 18px 0; }
+
 /* Descripción del método */
 .p1-info { border-radius: 16px; padding: 16px 20px; margin-bottom: 16px; }
 .p1-formula { font-family: Cambria, Georgia, serif; font-size: 19px; background: rgba(255,255,255,.75);
@@ -280,6 +288,21 @@ mod_p1_pseudoaleatorios_ui <- function(id) {
             div(style = "text-align:center; margin-top:10px;",
                 actionLink(ns("ejemplo"), "Cargar el ejemplo del anexo", icon = icon("book-open")))
           )
+        ),
+
+        # ---------------- Paso 4: descargas ----------------
+        div(class = "p1-panel",
+          paso_p1(4, "Descarga los datos", PALETA$menta),
+          div(class = "p1-ayuda", style = "margin:0 0 10px 0;",
+              icon("circle-info"), " Se descargan los números del último botón ", tags$b("Generar"), "."),
+          downloadButton(ns("desc_xlsx"), HTML("<b>Excel</b> (.xlsx)"), class = "p1-desc",
+                         style = paste0("background:", PALETA$menta, ";")),
+          div(class = "p1-ayuda", style = "margin:2px 0 10px 0;",
+              "Incluye hojas: Datos, Resumen, Chi-cuadrado y Comparación."),
+          downloadButton(ns("desc_csv"), HTML("<b>CSV</b> (.csv)"), class = "p1-desc",
+                         style = paste0("background:", PALETA$petroleo, ";")),
+          downloadButton(ns("desc_txt"), HTML("<b>Texto</b> (.txt)"), class = "p1-desc",
+                         style = paste0("background:", PALETA$indigo, ";"))
         )
       ),
 
@@ -308,12 +331,8 @@ mod_p1_pseudoaleatorios_ui <- function(id) {
                 tabPanel("Dispersión 3D",
                          que_veo_p1("Ternas de números seguidos. <b>Gire el cubo con el mouse.</b> Pruebe el generador RANDU: sus puntos caen en solo 15 planos."),
                          plotlyOutput(ns("disp3d"), height = "500px")),
-                tabPanel("Tabla y descargas",
-                         que_veo_p1("Cálculo de cada iteración. Puede descargar los datos en tres formatos."),
-                         downloadButton(ns("desc_xlsx"), "Excel (.xlsx)", class = "btn-success"),
-                         downloadButton(ns("desc_csv"),  "CSV (.csv)"),
-                         downloadButton(ns("desc_txt"),  "Texto (.txt)"),
-                         br(), br(),
+                tabPanel("Tabla de datos",
+                         que_veo_p1("Cálculo de cada iteración, igual que en clase. Los datos se descargan desde el panel <b>④ Descarga los datos</b>."),
                          DTOutput(ns("tabla")))
               )
             ),
@@ -321,33 +340,30 @@ mod_p1_pseudoaleatorios_ui <- function(id) {
             # ===== B. Paso a paso =====
             tabPanel(tagList(icon("person-chalkboard"), " Paso a paso"), br(),
               que_veo_p1("Mueva el deslizador o pulse <b>▶</b> para ver cómo se calcula cada número, igual que en clase."),
-              fluidRow(
-                column(7,
-                       sliderInput(ns("paso"), "Iteración", min = 1, max = 10, value = 1, step = 1,
-                                   width = "100%", animate = animationOptions(interval = 1800)),
-                       uiOutput(ns("explicacion"))),
-                column(5, plotlyOutput(ns("traza"), height = "360px"))
-              )
+              sliderInput(ns("paso"), "Iteración", min = 1, max = 10, value = 1, step = 1,
+                          width = "100%", animate = animationOptions(interval = 1800)),
+              div(class = "p1-proceso", uiOutput(ns("explicacion"))),
+              h4(icon("chart-line"), " Ubicación del paso actual en la secuencia"),
+              que_veo_p1("Se muestran los números cercanos al paso actual (punto grande). Al avanzar el deslizador, la ventana se desplaza."),
+              plotlyOutput(ns("traza"), height = "340px")
             ),
 
             # ===== C. Análisis del generador =====
             tabPanel(tagList(icon("magnifying-glass-chart"), " Análisis del generador"), br(),
+              h4(icon("infinity"), " ¿Tendrá periodo completo?"),
+              que_veo_p1("El <b>Teorema de Hull-Dobell</b> dice si un MCL recorre los m valores posibles antes de repetirse."),
+              uiOutput(ns("hull")),
+              hr(),
+              h4(icon("scale-balanced"), " ¿Son uniformes? Prueba Chi-cuadrado"),
+              que_veo_p1("Divide [0, 1) en k intervalos y compara cuántos números cayeron en cada uno (<b>observado</b>) con los que deberían caer si fueran uniformes (<b>esperado</b> = N/k)."),
               fluidRow(
-                column(5,
-                       h4(icon("infinity"), " ¿Tendrá periodo completo?"),
-                       que_veo_p1("El <b>Teorema de Hull-Dobell</b> dice si un MCL recorre los m valores posibles antes de repetirse."),
-                       uiOutput(ns("hull"))),
-                column(7,
-                       h4(icon("scale-balanced"), " ¿Son uniformes? Prueba Chi-cuadrado"),
-                       que_veo_p1("Divide [0, 1) en k intervalos y compara cuántos números cayeron en cada uno (observado) con los que deberían caer (esperado)."),
-                       fluidRow(
-                         column(6, numericInput(ns("k_chi"), "Intervalos (k)", value = 10, min = 2, max = 50)),
-                         column(6, selectInput(ns("alfa"), "Significancia α", choices = c(0.01, 0.05, 0.10), selected = 0.05))
-                       ),
-                       uiOutput(ns("chi_decision")),
-                       plotlyOutput(ns("chi_grafico"), height = "260px"),
-                       tableOutput(ns("chi_tabla")))
-              )
+                column(3, numericInput(ns("k_chi"), "Intervalos (k)", value = 10, min = 2, max = 50),
+                          selectInput(ns("alfa"), "Significancia α", choices = c(0.01, 0.05, 0.10), selected = 0.05)),
+                column(9, uiOutput(ns("chi_decision")))
+              ),
+              plotlyOutput(ns("chi_grafico"), height = "360px"),
+              h5(icon("table"), " Detalle por intervalo", style = "font-weight:700; margin-top:14px;"),
+              div(style = "overflow-x:auto;", tableOutput(ns("chi_tabla")))
             ),
 
             # ===== D. Comparar métodos =====
@@ -632,13 +648,15 @@ mod_p1_pseudoaleatorios_server <- function(id) {
       u <- datos()$u
       i <- indices()
       f <- min(input$paso, length(u))
-      ver <- 1:min(length(u), 300)
+      # ventana de 25 valores antes y después del paso actual
+      ver <- max(1, f - 25):min(length(u), f + 25)
       plot_ly() %>%
         add_trace(x = i[ver], y = u[ver], type = "scatter", mode = "lines+markers", name = "u(i)",
-                  line = list(color = PALETA$p_lavanda), marker = list(size = 4, color = PALETA$p_lavanda)) %>%
+                  line = list(color = PALETA$p_lavanda, width = 2), marker = list(size = 7, color = PALETA$p_lavanda),
+                  hovertemplate = "i = %{x}<br>u = %{y:.4f}<extra></extra>") %>%
         add_trace(x = i[f], y = u[f], type = "scatter", mode = "markers", name = "Paso actual",
                   marker = list(size = 18, color = color_metodo(), line = list(color = "white", width = 3))) %>%
-        layout(title = "Ubicación del paso actual", showlegend = FALSE,
+        layout(showlegend = FALSE,
                xaxis = list(title = "i"), yaxis = list(title = "u(i)", range = c(0, 1))) %>%
         estilo_p1()
     })
@@ -666,8 +684,8 @@ mod_p1_pseudoaleatorios_server <- function(id) {
       filas <- list()
       for (j in 1:nrow(hd)) {
         ok <- hd$Cumple[j]
-        filas[[j]] <- div(style = paste0("border-left:5px solid ", if (ok) PALETA$menta else PALETA$rojo,
-                                         "; background:#f8f9fa; padding:8px 12px; margin-bottom:8px; border-radius:6px;"),
+        filas[[j]] <- div(style = paste0("flex:1; min-width:220px; border-left:5px solid ", if (ok) PALETA$menta else PALETA$rojo,
+                                         "; background:#f7f8fc; padding:10px 14px; border-radius:10px;"),
                           icon(if (ok) "circle-check" else "circle-xmark",
                                style = paste0("color:", if (ok) PALETA$menta else PALETA$rojo)),
                           strong(" ", hd$Condicion[j]), br(),
@@ -675,7 +693,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
       }
       completo <- all(hd$Cumple)
       tagList(
-        filas,
+        div(style = "display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px;", filas),
         div(class = if (completo) "alert alert-success" else "alert alert-warning",
             if (completo) tagList(icon("trophy"), " Cumple las tres condiciones: el periodo es completo, ",
                                   strong("periodo = m = ", num_p1(p$m)), ".")
@@ -699,7 +717,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
             formula_p1("χ<sup>2</sup> = Σ (O<sub>j</sub> − E<sub>j</sub>)<sup>2</sup> / E<sub>j</sub> = <b>",
                        round(ch$chi2, 4), "</b> &nbsp;&nbsp; vs. &nbsp;&nbsp; χ<sup>2</sup><sub>", ch$gl, "; ",
                        1 - as.numeric(input$alfa), "</sub> = ", round(ch$critico, 4)),
-            "<b>Valor p = ", round(ch$p_valor, 4), "</b> → ",
+            "<b>Valor p ", if (ch$p_valor < 0.0001) "< 0.0001" else paste("=", round(ch$p_valor, 4)), "</b> → ",
             if (ch$rechaza) "Se <b>rechaza</b> H₀: los números NO parecen uniformes."
             else "<b>No se rechaza</b> H₀: los números son compatibles con U(0,1).")))
     })
@@ -716,7 +734,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
         estilo_p1()
     })
 
-    output$chi_tabla <- renderTable(chi()$tabla, striped = TRUE, hover = TRUE, digits = 2)
+    output$chi_tabla <- renderTable(chi()$tabla, striped = TRUE, hover = TRUE, digits = 2, width = "100%")
 
     # ---------- 13. Comparar los tres métodos ----------
     comparacion <- eventReactive(input$generar, {
@@ -726,7 +744,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
       lista
     }, ignoreNULL = FALSE)
 
-    output$comp_tabla <- renderDT({
+    tabla_comparacion <- reactive({
       lista <- comparacion()
       filas <- list()
       for (clave in names(lista)) {
@@ -745,8 +763,11 @@ mod_p1_pseudoaleatorios_server <- function(id) {
                                        p_valor_Chi2 = p_chi)
         }
       }
-      tabla <- do.call(rbind, filas)
-      datatable(tabla, rownames = FALSE, options = list(dom = "t", ordering = FALSE),
+      do.call(rbind, filas)
+    })
+
+    output$comp_tabla <- renderDT({
+      datatable(tabla_comparacion(), rownames = FALSE, options = list(dom = "t", ordering = FALSE),
                 colnames = c("Método", "N", "Media", "|Media − 0.5|", "Varianza", "|Var − 1/12|",
                              "Periodo", "Valor p χ²"))
     })
@@ -783,7 +804,19 @@ mod_p1_pseudoaleatorios_server <- function(id) {
 
     output$desc_xlsx <- downloadHandler(
       filename = function() paste0("pseudoaleatorios_", datos()$clave, ".xlsx"),
-      content  = function(file) write_xlsx(list(Datos = datos()$tabla, Resumen = resumen()), file)
+      content  = function(file) {
+        hojas <- list(Datos = datos()$tabla, Resumen = resumen())
+        u <- datos()$u
+        if (length(u) >= 20) {
+          ch <- chi_cuadrado_uniforme(u, 10)
+          hojas$Chi_cuadrado <- rbind(ch$tabla,
+                                      data.frame(Intervalo = c("Chi2 calculado", "Valor crítico (α = 0.05)", "Valor p"),
+                                                 Observada = NA, Esperada = NA,
+                                                 Aporte = round(c(ch$chi2, ch$critico, ch$p_valor), 4)))
+        }
+        hojas$Comparacion <- tabla_comparacion()
+        write_xlsx(hojas, file)
+      }
     )
     output$desc_csv <- downloadHandler(
       filename = function() paste0("pseudoaleatorios_", datos()$clave, ".csv"),
@@ -791,7 +824,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
     )
     output$desc_txt <- downloadHandler(
       filename = function() paste0("pseudoaleatorios_", datos()$clave, ".txt"),
-      content  = function(file) write.table(datos()$tabla, file, sep = "\t", row.names = FALSE)
+      content  = function(file) write.table(datos()$tabla, file, sep = "\t", row.names = FALSE, quote = FALSE)
     )
   })
 }
