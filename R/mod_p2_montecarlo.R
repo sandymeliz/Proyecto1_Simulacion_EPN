@@ -34,8 +34,9 @@ mod_p2_montecarlo_ui <- function(id)
 
 mod_p2_montecarlo_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-
+    #---------------------------------------------------------------------------------------------------------
     # Reactive que calcula la estimación MC
+    #---------------------------------------------------------------------------------------------------------
     calculo <- eventReactive(input$run, {
       req(input$fx)
       fx <- input$fx
@@ -43,8 +44,10 @@ mod_p2_montecarlo_server <- function(id) {
       a <- input$a
       b <- input$b
       tipo <- input$tipo
-
+      
+      #---------------------------------------------------------------------------------------------------------
       # Simulación según el tipo de rango
+      #---------------------------------------------------------------------------------------------------------
       if (tipo == "finito") {
         y <- runif(N)
         x <- a + (b - a) * y
@@ -61,12 +64,16 @@ mod_p2_montecarlo_server <- function(id) {
         v_neg <- eval(parse(text = fx), list(x = x_neg)) / (y^2)
         vals <- v_pos + v_neg
       }
-
+      
+      #---------------------------------------------------------------------------------------------------------
       # Estimación, error estándar y referencia
+      #---------------------------------------------------------------------------------------------------------
       estimacion <- mean(vals)
       error_est <- sd(vals) / sqrt(N)
-
+      
+      #---------------------------------------------------------------------------------------------------------
       # Valor de referencia con integrate()
+      #---------------------------------------------------------------------------------------------------------
       f_ref <- function(x) {
         eval(parse(text = fx), list(x = x))
       }
@@ -83,8 +90,10 @@ mod_p2_montecarlo_server <- function(id) {
            referencia = ref, vals = vals, fx = fx, a = a, b = b,
            tipo = tipo, N = N)
     })
-
+      
+    #---------------------------------------------------------------------------------------------------------
     # Texto de resultados
+    #---------------------------------------------------------------------------------------------------------
     output$resultado <- renderPrint({
       r <- calculo()
       cat(sprintf("Estimación MC (N = %d): %.6f\n", r$N, r$estimacion))
@@ -98,8 +107,10 @@ mod_p2_montecarlo_server <- function(id) {
                     abs(r$estimacion - r$referencia)))
       }
     })
-
+    
+    #---------------------------------------------------------------------------------------------------------
     # Gráfico geométrico: puntos aleatorios bajo la curva
+    #---------------------------------------------------------------------------------------------------------
     output$grafico_geom <- renderPlot({
       r <- calculo()
       if (r$tipo == "finito") {
@@ -120,8 +131,10 @@ mod_p2_montecarlo_server <- function(id) {
              xlab = "Valor simulado")
       }
     })
-
+      
+    #---------------------------------------------------------------------------------------------------------
     # Gráfico de convergencia
+    #---------------------------------------------------------------------------------------------------------
     output$grafico_conv <- renderPlot({
       r <- calculo()
       seq_N <- seq(100, r$N, by = max(1, r$N %/% 200))
@@ -136,8 +149,10 @@ mod_p2_montecarlo_server <- function(id) {
                col = "red", lwd = 2, lty = 2)
       }
     })
-
+    
+    #---------------------------------------------------------------------------------------------------------
     # Descarga de resultados
+    #---------------------------------------------------------------------------------------------------------
     output$descargar <- downloadHandler(
       filename = function() paste0("montecarlo_", Sys.Date(), ".csv"),
       content = function(file) {
