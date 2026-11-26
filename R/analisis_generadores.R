@@ -63,4 +63,29 @@ hull_dobell <- function(a, c, m) {
   )
 }
 
+# --------------------------------------------------------------
+# Prueba Chi-cuadrado de uniformidad con k intervalos iguales
+#   H0: los números siguen una distribución U(0, 1)
+# --------------------------------------------------------------
+chi_cuadrado_uniforme <- function(u, k = 10, alfa = 0.05) {
+  N <- length(u)
+  observadas <- numeric(k)
+  for (j in 1:k) {
+    observadas[j] <- sum(u >= (j - 1) / k & u < j / k)
+  }
+  esperada <- N / k
+  chi2     <- sum((observadas - esperada)^2 / esperada)
+  critico  <- qchisq(1 - alfa, df = k - 1)
+  p_valor  <- 1 - pchisq(chi2, df = k - 1)
+
+  tabla <- data.frame(
+    Intervalo  = paste0("[", round((1:k - 1) / k, 2), ", ", round((1:k) / k, 2), ")"),
+    Observada  = as.integer(observadas),
+    Esperada   = esperada,
+    Aporte     = round((observadas - esperada)^2 / esperada, 4)
+  )
+
+  list(tabla = tabla, chi2 = chi2, critico = critico, p_valor = p_valor,
+       gl = k - 1, rechaza = chi2 > critico)
+}
 
