@@ -1,9 +1,9 @@
 # ==============================================================
 # Pestaña 4: Generación de Variables Aleatorias Continuas
 # Responsable: Sandy
-# Usa: R/00_paleta.R               (colores)
-#      R/generadores_continuas.R   (algoritmos de simulación)
-#      R/mod_p1_pseudoaleatorios.R (estilos y tarjetas compartidas: tarjeta_p1, ayuda_p1, ...)
+# Usa: R/00_paleta.R          
+#      R/generadores_continuas.R  
+#      R/mod_p1_pseudoaleatorios.R
 # ==============================================================
 
 library(plotly)
@@ -53,7 +53,7 @@ CSS_P4 <- paste0("
 opcion_dist_p4 <- function(clave) {
   d <- DISTRIBUCIONES_P4[[clave]]
   div(class = "p1-op",
-      div(class = "p1-ico", style = paste0("background:", d$color, ";"), icon(d$icono)),
+      div(class = "p1-ico", style = paste0("background:", transparente(d$color, 0.16), "; color:", d$color, ";"), icon(d$icono)),
       div(div(class = "p1-tit", d$nombre), div(class = "p1-lema", d$lema)))
 }
 
@@ -199,7 +199,7 @@ mod_p4_continuas_server <- function(id) {
     estilo_p4 <- function(g) {
       g %>% layout(font = list(family = "Segoe UI, Helvetica, Arial", color = PALETA$noche),
                    paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)",
-                   legend = list(orientation = "h", y = -0.15)) %>%
+                   legend = list(orientation = "h", y = -0.22, yanchor = "top")) %>%
         config(displaylogo = FALSE, locale = "es")
     }
 
@@ -495,7 +495,7 @@ mod_p4_continuas_server <- function(id) {
     # ---------- 11. Tabla ----------
     output$tabla <- renderDT({
       t <- datos()$tabla
-      datatable(t, rownames = FALSE, options = list(pageLength = 10, scrollX = TRUE)) %>%
+      datatable(t, rownames = FALSE, colnames = nombres_columnas(names(t)), options = list(pageLength = 10, scrollX = TRUE)) %>%
         formatRound(columns = 2:ncol(t), digits = 5)
     })
 
