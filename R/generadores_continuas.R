@@ -135,4 +135,90 @@ sim_normal_rechazo <- function(N, mu, sigma, fuente) {
          nombre_f = "f(y) = 2/√(2π) · e^(−y²/2)", nombre_env = "c · g(y) = 1.3155 · e^(−y)"))
 }
 
+# ==============================================================
+# 4. DENSIDAD PERSONALIZADA f(x) en [a, b]
+# ==============================================================
+
+# Convierte el texto escrito por el usuario en una función de x.
+crear_funcion_usuario <- function(texto) {
+  permitidas <- c("x", "exp", "log", "sqrt", "sin", "cos", "tan", "abs", "pi")
+  if (grepl("[^0-9A-Za-z_+*/^(). -]", texto))
+    stop("La función tiene caracteres no permitidos. Use solo números, x, + − * / ^ ( ) y funciones como exp, log, sqrt, sin, cos.")
+  palabras <- regmatches(texto, gregexpr("[A-Za-z_][A-Za-z_0-9]*", texto))[[1]]
+  invalidas <- palabras[!(palabras %in% permitidas)]
+  if (length(invalidas) > 0)
+    stop(paste0("No se reconoce: ", paste(unique(invalidas), collapse = ", "),
+                ". Funciones permitidas: exp, log, sqrt, sin, cos, tan, abs, pi."))
+  expr <- parse(text = texto)
+  function(x) {
+    y <- eval(expr, list(x = x))
+    if (length(y) == 1) y <- rep(y, length(x))
+    y
+  }
+}
+
+# Revisa que f sea una densidad válida y prepara la malla para F(x)
+preparar_densidad <- function(f, a, b) {
+  if (!(b > a)) stop("El límite b debe ser mayor que a.")
+  xs <- seq(a, b, length.out = 2001)
+  fx <- f(xs)
+  if (any(!is.finite(fx))) stop("f(x) no está definida en todo el intervalo [a, b] (da infinito o NaN).")
+  if (any(fx < 0)) stop("f(x) toma valores negativos: una densidad debe ser f(x) ≥ 0.")
+
+  area <- trapecio(xs, fx)
+  if (area <= 0) stop("El área bajo f(x) es 0.")
+  aviso <- NULL
+  if (abs(area - 1) > 0.01) {
+    aviso <- paste0("El área bajo f(x) en [", a, ", ", b, "] es ", round(area, 4),
+                    " (debería ser 1). Se normalizó dividiendo f(x) para ", round(area, 4), ".")
+  }
+  fx <- fx / area
+
+  # F(x) acumulando trapecios
+  Fx <- c(0, cumsum((fx[-1] + fx[-length(fx)]) / 2 * diff(xs)))
+  Fx <- Fx / Fx[length(Fx)]
+
+  list(xs = xs, fx = fx, Fx = Fx, area = area, aviso = aviso,
+       f_norm = function(t) ifelse(t < a | t > b, 0, f(t) / area))
+}
+
+# 4a. Transformación inversa
+sim_personalizada_inversa <- function(N, f, a, b, fuente) {
+  d <- preparar_densidad(f, a, b)
+  u <- fuente(N)
+  x <- interpolar(d$Fx, d$xs, u)       # se busca x tal que F(x) = u
+  list(x = x, usadas = N, densidad = d, aviso = d$aviso,
+       tabla = data.frame(i = 1:N, u = u, x = x))
+}
+
+# 4b. Aceptación y rechazo con uniforme en [a, b]
+sim_personalizada_rechazo <- function(N, f, a, b, fuente) {
+  d <- preparar_densidad(f, a, b)
+  M <- max(d$fx) * 1.02                
+  x <- c(); v_ok <- c()
+  cand_y <- c(); cand_v <- c(); cand_ok <- c()
+  usadas <- 0
+
+  while (length(x) < N) {
+    k  <- ceiling((N - length(x)) * M * (b - a) * 1.2) + 10
+    u1 <- fuente(k); u2 <- fuente(k)
+    usadas <- usadas + 2 * k
+    y <- a + (b - a) * u1
+    v <- M * u2
+    acepta <- v <= d$f_norm(y)
+    x    <- c(x, y[acepta]); v_ok <- c(v_ok, v[acepta])
+    cand_y <- c(cand_y, y); cand_v <- c(cand_v, v); cand_ok <- c(cand_ok, acepta)
+  }
+  x <- x[1:N]
+  c_const <- M * (b - a)
+  list(x = x, usadas = usadas, densidad = d, aviso = d$aviso,
+       tabla = data.frame(i = 1:N, y = x, v = v_ok[1:N], f_y = d$f_norm(x)),
+       rechazo = list(
+         cand  = data.frame(y = cand_y, v = cand_v, acepta = cand_ok),
+         f     = d$f_norm,
+         env   = function(t) rep(M, length(t)),
+         rango = c(a, b),
+         tasa  = mean(cand_ok), tasa_teo = 1 / c_const,
+         nombre_f = "f(x)", nombre_env = paste0("M = máx f(x) = ", round(M, 4))))
+}
 
