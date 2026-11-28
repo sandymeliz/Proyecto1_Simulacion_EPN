@@ -1,9 +1,10 @@
 # ==============================================================
-# Pestaña 2: Integración por el Método de Montecarlo
-# Responsable: Erika Haro
+# Pestaña 2: Aproximación de Integrales por el Método de Montecarlo
+# Responsable: Erika
 # Usa: R/montecarlo.R, R/generadores_continuas.R, R/00_paleta.R
 #      y los estilos compartidos de la Pestaña 1
 # ==============================================================
+
 library(plotly)
 library(DT)
 library(writexl)
@@ -134,7 +135,7 @@ mod_p2_montecarlo_server <- function(id) {
     estilo_p2 <- function(g) {
       g %>% layout(font = list(family = "Segoe UI, Helvetica, Arial", color = PALETA$noche),
                    paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)",
-                   legend = list(orientation = "h", y = -0.15)) %>%
+                   legend = list(orientation = "h", y = -0.22, yanchor = "top")) %>%
         config(displaylogo = FALSE, locale = "es")
     }
 
@@ -357,7 +358,7 @@ mod_p2_montecarlo_server <- function(id) {
     # ---------- Tabla ----------
     output$tabla <- renderDT({
       t <- datos()$r$tabla
-      datatable(t, rownames = FALSE, options = list(pageLength = 10, scrollX = TRUE)) %>%
+      datatable(t, rownames = FALSE, colnames = nombres_columnas(names(t)), options = list(pageLength = 10, scrollX = TRUE)) %>%
         formatRound(columns = which(sapply(t, is.numeric))[-1], digits = 5)
     })
 
@@ -382,4 +383,3 @@ mod_p2_montecarlo_server <- function(id) {
       content  = function(file) write.table(datos()$r$tabla, file, sep = "\t", row.names = FALSE, quote = FALSE))
   })
 }
-
