@@ -1,10 +1,10 @@
 # Simulación Estocástica – Aplicativo Shiny
 
-Trabajo Grupal N.º 1 de la materia **Simulación** · Escuela Politécnica Nacional · Semestre 2026-B
+Trabajo Grupal N.º 1 - **Simulación** · Escuela Politécnica Nacional · Semestre 2026-B
 
 **Autoras:** Sandy González · Erika Haro
 
-**Aplicación en línea:** https://USUARIO.shinyapps.io/NOMBRE_APP
+**Aplicación en línea:** https://d83jj7-erika-haro.shinyapps.io/Proyecto1_Simulacion_EPN/
 
 ---
 
