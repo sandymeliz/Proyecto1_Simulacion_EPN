@@ -1,5 +1,5 @@
 # ==============================================================
-# Paleta de colores del aplicativo (compartida por todas las pestañas)
+# Paleta de colores del aplicativo
 # ==============================================================
 
 PALETA <- list(
@@ -26,7 +26,13 @@ PALETA <- list(
   p_celeste   = "#A8C7D6",
   p_lavanda   = "#A8AFD6",
   p_lila      = "#D4A8D6",
-  p_rosa      = "#FFD7D6"
+  p_rosa      = "#FFD7D6",
+  # Pastel 2 (paleta minimalista)
+  agua        = "#CFF4F3",
+  lila        = "#EFD6FF",
+  chicle      = "#FFC0D7",
+  vainilla    = "#FFF9C2",
+  pistacho    = "#CEEBD1"
 )
 
 # Color con transparencia (alfa entre 0 y 1) para gráficos
@@ -55,6 +61,21 @@ css_tarjetas_opcion <- function(clase, colores) {
 # Tarjeta de opción con icono, título y lema
 opcion_tarjeta <- function(titulo, lema, icono, color) {
   div(class = "p1-op",
-      div(class = "p1-ico", style = paste0("background:", color, ";"), icon(icono)),
+      div(class = "p1-ico", style = paste0("background:", transparente(color, 0.16), "; color:", color, ";"), icon(icono)),
       div(div(class = "p1-tit", titulo), div(class = "p1-lema", lema)))
+}
+
+
+# Nombres legibles para las columnas de las tablas
+NOMBRES_COLUMNAS <- c(
+  n = "n", i = "i", u = "U", x = "x", y = "y", v = "V", z = "z",
+  x_anterior = "x(n−1)", ax_mas_c = "a·x(n−1) + c", x_n = "x(n)", u_n = "u(n)",
+  x_i = "x(i)", x_por_c = "x(i)·c", izquierda = "Izquierda", derecha = "Derecha",
+  x_siguiente = "x(i+1)", u_i = "u(i)", x_i_cuad = "x(i)²", centrales = "Cifras centrales",
+  u1 = "U₁", u2 = "U₂", u3 = "U₃", f_x = "f(x)", f_y = "f(y)",
+  estimacion_acumulada = "Estimación acumulada", resultado = "Resultado",
+  comparaciones = "Comparaciones"
+)
+nombres_columnas <- function(nombres) {
+  ifelse(nombres %in% names(NOMBRES_COLUMNAS), NOMBRES_COLUMNAS[nombres], gsub("_", " ", nombres))
 }
