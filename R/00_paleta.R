@@ -1,5 +1,5 @@
 # ==============================================================
-# Paleta de colores del aplicativo
+# Paleta de colores del aplicativo (compartida por todas las pestañas)
 # ==============================================================
 
 PALETA <- list(
@@ -33,4 +33,28 @@ PALETA <- list(
 transparente <- function(hex, alfa) {
   rgb <- col2rgb(hex)
   paste0("rgba(", rgb[1], ",", rgb[2], ",", rgb[3], ",", alfa, ")")
+}
+
+# Estilos del selector en forma de tarjetas (radioButtons con clase `clase`).
+# `colores` es una lista con el color de cada opción, por ejemplo list(binom = "#5C93AA").
+css_tarjetas_opcion <- function(clase, colores) {
+  reglas <- paste0("
+.", clase, " .shiny-options-group { display: flex; gap: 14px; flex-wrap: wrap; }
+.", clase, " .radio-inline { flex: 1; min-width: 200px; margin: 0 !important; padding: 0 !important; }
+.", clase, " input[type=radio] { display: none; }
+.", clase, " .radio-inline > span { display: block; }
+.", clase, " label:has(input:checked) .p1-op { box-shadow: 0 8px 18px rgba(53,56,125,.18); transform: translateY(-2px); }
+")
+  for (v in names(colores)) {
+    reglas <- paste0(reglas, ".", clase, " label:has(input[value=", v, "]:checked) .p1-op { border-color: ",
+                     colores[[v]], "; background: ", colores[[v]], "22; }\n")
+  }
+  reglas
+}
+
+# Tarjeta de opción con icono, título y lema
+opcion_tarjeta <- function(titulo, lema, icono, color) {
+  div(class = "p1-op",
+      div(class = "p1-ico", style = paste0("background:", color, ";"), icon(icono)),
+      div(div(class = "p1-tit", titulo), div(class = "p1-lema", lema)))
 }
