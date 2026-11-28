@@ -1,9 +1,9 @@
 # ==============================================================
 # Pestaña 1: Generación de Números Pseudoaleatorios
 # Responsable: Sandy
-# Usa: R/00_paleta.R             (colores del aplicativo)
-#      R/generadores.R           (gen_mcl, gen_lehmer, gen_cuadrados_medios)
-#      R/analisis_generadores.R  (hull_dobell, chi_cuadrado_uniforme)
+# Usa: R/00_paleta.R            
+#      R/generadores.R           
+#      R/analisis_generadores.R
 # ==============================================================
 
 library(plotly)    # gráficos interactivos (2D y 3D)
@@ -143,15 +143,13 @@ CSS_P1 <- paste0("
 
 # Tarjeta de resumen
 tarjeta_p1 <- function(icono, titulo, valor, nota, color) {
-  div(style = paste0("flex:1; min-width:170px; background:white; border:1px solid #eceef5; border-radius:16px;",
-                     "padding:12px 16px; display:flex; gap:12px; align-items:center;",
-                     "box-shadow:0 2px 8px rgba(53,56,125,.06);"),
-      div(style = paste0("width:44px; height:44px; border-radius:12px; display:flex; align-items:center;",
-                         "justify-content:center; font-size:19px; color:white; background:", color, ";"),
+  div(style = "flex:1; min-width:165px; background:white; border:1px solid #eef0f6; border-radius:14px; padding:10px 14px; display:flex; gap:10px; align-items:center;",
+      div(style = paste0("width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center;",
+                         "font-size:13px; flex-shrink:0; color:", color, "; background:", transparente(color, 0.15), ";"),
           icon(icono)),
-      div(div(style = "font-size:11.5px; color:#7a7e99; font-weight:600; letter-spacing:.3px;", titulo),
-          div(style = paste0("font-size:23px; font-weight:800; color:", PALETA$noche, "; line-height:1.15;"), valor),
-          div(style = "font-size:11.5px; color:#8a8ea8;", nota)))
+      div(div(style = "font-size:10.5px; color:#8a8ea8; font-weight:600; letter-spacing:.4px;", titulo),
+          div(style = paste0("font-size:19px; font-weight:700; color:", PALETA$noche, "; line-height:1.2;"), valor),
+          div(style = "font-size:11px; color:#9a9eb5;", nota)))
 }
 
 # Texto de ayuda debajo de un parámetro
@@ -169,7 +167,7 @@ paso_p1 <- function(numero, texto, color = PALETA$indigo) {
 opcion_metodo_p1 <- function(clave) {
   m <- METODOS_P1[[clave]]
   div(class = "p1-op",
-      div(class = "p1-ico", style = paste0("background:", m$fuerte, ";"), icon(m$icono)),
+      div(class = "p1-ico", style = paste0("background:", transparente(m$fuerte, 0.16), "; color:", m$fuerte, ";"), icon(m$icono)),
       div(div(class = "p1-tit", m$nombre), div(class = "p1-lema", m$lema)))
 }
 
@@ -418,7 +416,8 @@ mod_p1_pseudoaleatorios_server <- function(id) {
     # Estilo común de los gráficos
     estilo_p1 <- function(g) {
       g %>% layout(font = list(family = "Segoe UI, Helvetica, Arial", color = PALETA$noche),
-                   paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)") %>%
+                   paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)",
+                   legend = list(orientation = "h", y = -0.22, yanchor = "top")) %>%
         config(displaylogo = FALSE, locale = "es")
     }
     color_metodo <- reactive(METODOS_P1[[datos()$clave]]$fuerte)
@@ -522,7 +521,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
         layout(title = paste("Histograma –", datos()$metodo),
                xaxis = list(title = "u", range = c(0, 1)),
                yaxis = list(title = "Densidad"),
-               legend = list(orientation = "h", y = -0.15), bargap = 0.03) %>%
+               bargap = 0.03) %>%
         estilo_p1()
     })
 
@@ -576,7 +575,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
     # ---------- 9. Tabla paso a paso ----------
     output$tabla <- renderDT({
       tabla <- datos()$tabla
-      datatable(tabla, rownames = FALSE, options = list(pageLength = 10, scrollX = TRUE)) %>%
+      datatable(tabla, rownames = FALSE, colnames = nombres_columnas(names(tabla)), options = list(pageLength = 10, scrollX = TRUE)) %>%
         formatRound(columns = ncol(tabla), digits = 4)
     })
 
@@ -730,7 +729,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
         add_lines(x = ch$tabla$Intervalo, y = ch$tabla$Esperada, name = "Esperada",
                   line = list(color = PALETA$rojo, dash = "dash", width = 3)) %>%
         layout(xaxis = list(title = "", categoryorder = "array", categoryarray = ch$tabla$Intervalo),
-               yaxis = list(title = "Frecuencia"), legend = list(orientation = "h", y = 1.15)) %>%
+               yaxis = list(title = "Frecuencia"), legend = list(orientation = "h", y = 1.15, yanchor = "bottom")) %>%
         estilo_p1()
     })
 
@@ -755,7 +754,8 @@ mod_p1_pseudoaleatorios_server <- function(id) {
                                        p_valor_Chi2 = NA)
         } else {
           u <- r$u
-          p_chi <- if (length(u) >= 50) round(chi_cuadrado_uniforme(u, 10)$p_valor, 4) else NA
+          p_chi <- if (length(u) >= 50) chi_cuadrado_uniforme(u, 10)$p_valor else NA
+          p_chi <- if (is.na(p_chi)) "—" else if (p_chi < 1e-4) "< 0.0001" else format(round(p_chi, 4), nsmall = 4)
           filas[[clave]] <- data.frame(Método = nombres[[clave]], N = length(u),
                                        Media = round(mean(u), 4), Error_media = round(abs(mean(u) - 0.5), 4),
                                        Varianza = round(var(u), 4), Error_varianza = round(abs(var(u) - 1/12), 4),
@@ -787,8 +787,7 @@ mod_p1_pseudoaleatorios_server <- function(id) {
       g %>% add_lines(x = c(0, 1), y = c(1, 1), name = "U(0,1)",
                       line = list(color = PALETA$rojo, width = 3, dash = "dash")) %>%
         layout(barmode = "overlay", title = "Comparación de histogramas",
-               xaxis = list(title = "u", range = c(0, 1)), yaxis = list(title = "Densidad"),
-               legend = list(orientation = "h", y = -0.15)) %>%
+               xaxis = list(title = "u", range = c(0, 1)), yaxis = list(title = "Densidad", range = c(0, 3))) %>%
         estilo_p1()
     })
 
