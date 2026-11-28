@@ -27,8 +27,8 @@ CSS_P5 <- paste0(
 ")
 
 sello_p5 <- function(rechaza) {
-  if (rechaza) paste0("<span class='p5-sello' style='background:", PALETA$rojo, ";'>✗ Se rechaza H₀</span>")
-  else paste0("<span class='p5-sello' style='background:", PALETA$menta, ";'>✓ No se rechaza H₀</span>")
+  if (rechaza) paste0("<span class='p5-sello' style='background:", PALETA$rojo, ";'>Se rechaza H₀</span>")
+  else paste0("<span class='p5-sello' style='background:", PALETA$menta, ";'>No se rechaza H₀</span>")
 }
 
 
@@ -166,7 +166,7 @@ mod_p5_bondad_ajuste_server <- function(id) {
     estilo_p5 <- function(g) {
       g %>% layout(font = list(family = "Segoe UI, Helvetica, Arial", color = PALETA$noche),
                    paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)",
-                   legend = list(orientation = "h", y = -0.18)) %>%
+                   legend = list(orientation = "h", y = -0.22, yanchor = "top")) %>%
         config(displaylogo = FALSE, locale = "es")
     }
 

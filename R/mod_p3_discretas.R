@@ -1,9 +1,10 @@
 # ==============================================================
-# Pestaña 3: Variables Aleatorias Discretas
-# Responsable: Erika Haro
+# Pestaña 3: Generación de Variables Aleatorias Discretas
+# Responsable: Erika
 # Usa: R/discretas.R, R/generadores_continuas.R, R/00_paleta.R
 #      y los estilos compartidos de la Pestaña 1
 # ==============================================================
+
 library(plotly)
 library(DT)
 library(writexl)
@@ -129,7 +130,7 @@ mod_p3_discretas_ui <- function(id) {
                      que_veo_p1("Transformación inversa discreta: para cada U se avanza por la escalera F(x) hasta el primer escalón que <b>supera</b> a U. Ese escalón es el valor X. Abajo, los primeros 15 pasos."),
                      plotlyOutput(ns("g_como"), height = "400px"),
                      DTOutput(ns("tabla_pasos"))),
-            tabPanel(tagList(icon("clipboard-list"), " Resumen descriptivo"),
+            tabPanel(tagList(icon("clipboard-list"), " Resumen descriptivo"), br(),
                      fluidRow(
                        column(6, h4(icon("calculator"), " Medidas"), tableOutput(ns("resumen"))),
                        column(6, h4(icon("scale-balanced"), " Prueba Chi-cuadrado de ajuste"),
@@ -158,7 +159,7 @@ mod_p3_discretas_server <- function(id) {
     estilo_p3 <- function(g) {
       g %>% layout(font = list(family = "Segoe UI, Helvetica, Arial", color = PALETA$noche),
                    paper_bgcolor = "rgba(0,0,0,0)", plot_bgcolor = "rgba(0,0,0,0)",
-                   legend = list(orientation = "h", y = -0.15)) %>%
+                   legend = list(orientation = "h", y = -0.22, yanchor = "top")) %>%
         config(displaylogo = FALSE, locale = "es")
     }
 
@@ -177,7 +178,7 @@ mod_p3_discretas_server <- function(id) {
       ok <- abs(sum(p) - 1) <= 1e-6
       div(style = paste0("font-size:13px; font-weight:600; margin:-4px 0 6px 0; color:", if (ok) PALETA$menta else PALETA$rojo, ";"),
           icon(if (ok) "circle-check" else "circle-xmark"), paste0(" Σpᵢ = ", round(sum(p), 6),
-                                                                   if (ok) "  ✓" else "  (debe ser 1)"))
+                                                                   if (ok) " (correcto)" else " (debe ser 1)"))
     })
 
     observeEvent(input$normalizar, {
@@ -403,7 +404,7 @@ mod_p3_discretas_server <- function(id) {
 
     # ---------- Tabla de datos ----------
     output$tabla <- renderDT({
-      datatable(datos()$tabla, rownames = FALSE, options = list(pageLength = 10)) %>%
+      datatable(datos()$tabla, rownames = FALSE, colnames = nombres_columnas(names(datos()$tabla)), options = list(pageLength = 10)) %>%
         formatRound(columns = "u", digits = 6)
     })
 
