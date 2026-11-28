@@ -7,9 +7,7 @@ Aplicativo interactivo en R Shiny – Trabajo Grupal N.º 1 (EPN).
 ## Integrantes
 - Sandy González
 - Erika Haro
-## 🌐 Aplicación en línea
 
-👉 **[Abrir aplicación en Shinyapps.io](https://d83jj7-erika-haro.shinyapps.io/Proyecto1/)**
 ## Estructura
 | Archivo | Contenido |
 |---|---|
